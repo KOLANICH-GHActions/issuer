@@ -1,0 +1,16 @@
+name: Issuer
+description: |
+  Lints issues to match the template. Allows users to assign own tags.
+author: KOLANICH
+inputs: 
+  github_token:
+    description: "The GITHUB_TOKEN secret"
+  config:
+    description: "The path for the label configurations"
+    default: ".github/issuer.yml"
+runs:
+  using: "node12" # GitHub disallows to use anything other there
+  main: "startBash.js" # ECMA modules are not yet supported by GH Actions
+branding:
+  icon: check-square
+  color: green

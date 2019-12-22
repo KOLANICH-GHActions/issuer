@@ -1,0 +1,139 @@
+# Our YAML can contain tabs (we replace them with 2 tabs to satisfy the parser). Everyone who dictates usage of spaces instead of tabs because of political decisions is **deply wrong** (in fact I want to insert here a bunch of foul insults, but the censorship and self-censorship must be abolished).
+
+title: issuer config
+type: object
+
+defs:
+	messagesTemplates:
+		type: object
+		description: |
+			Templates of messages to be printed. Support following placeholders:
+				{userName} for mentioning a user
+				{count} for count of issues
+		properties:
+			greeting:
+				description: 'Is printed when issues are introduced. Should end on `:`.'
+				type: string
+				# https://www.google.com/search?q=yo+dawg&tbm=isch
+				default: |
+					Yo {userName}! We heard you like issues, so we have found `{count}` issues in your issues, so you must fix them, before us fixing them:
+			issuesFixed:
+				description: Is printed when the issue is modified and all the issues are fixed.
+				type: string
+				default: |
+					The issues that are detected by the linter have been fixed. Good job, {userName}! You also may want to remove all the unselected checkboxes if they are present. Or just fix [this action](https://github.com/KOLANICH/issuer) to remove them itself ;)
+			issuesStillPresent:
+				description: 'Is printed when the issue is modified but the issues were not fixed. Should end on `:`.'
+				type: string
+				default: |
+					{userName}, `{count}` issues are still present:
+	reaction:
+		type: object
+		description: 'For timed reactions it is time in seconds, `0` means `immediately`.'
+		properties:
+			assignLabels: 
+				description: Whether to assign labels based on validity
+				type: bool
+			close:
+				description: Close the issue if this issue is not fixed after this count of seconds. The issue is not automatically reopened.
+				type: number
+			delete: 
+				description: Delete the issue if this issue is not fixed after this count of seconds.
+				type: number
+			block:
+				description: Ban the user after this count of invalid issues. Currently unimplemented since it is not very clear how to keep track of how many invalid issues a user had left. In section context it is UB.
+				type: number
+			react:
+				description: Add these reactions if an issue is invalid. Must be from the list of valid reactions.
+				type: array
+			removeComments:
+				type: bool
+				description: "If the tool should automatically remove comments. Currently unimplemented."
+				default: true
+			removeUncheckedCheckboxes:
+				type: bool
+				description: "If the tool should automatically remove unchecked checkboxes. Currently unimplemented, but there is some infrastructure for it."
+				default: true
+	essentialLabels:
+		type: object
+		description: Labels used for both keeping track of state and for communicating linting results.
+		properties:
+			delayedAction: 
+				description:
+					Applied to issues to which something gonna be done after the timeout have exceeded.
+					MUST NOT BE REDEFINED ANYWHERE EXCEPT THE ROOT LEVEL. You got it right, must be the same for all the templates. On cron the script analyses all the issues with this label and if they have not been fixed in time, sanction is applied.
+				type: string
+				default: "sanction-pending"
+			invalid:
+				description: Applied to issues having issues.
+				type: string
+				default: invalid
+			valid:
+				description: Applied to issues that have no issues.
+				type: string
+				default: valid
+	cbxSection:
+		type: object
+		description: Specifies conditions on validity and behavior of a checkbox section.
+		properties:
+			max:
+				description: At most this count of checkboxes may be checked in a valid
+					issue
+				type: [number, 'null']
+			min:
+				description: At least this count of checkboxes must be checked in a
+					valid issue
+				type: [number, 'null']
+			react:
+				description: Describes a behavior triggered when the tool encounters an invalid section.
+				"$ref": "#/defs/reaction"
+	
+	restSection:
+		type: object
+		description: Specifies conditions on validity and behavior of a section containing text.
+		properties:
+			mustRemoveTemplate:
+				type: bool
+				description: "Determines if a user must remove all the traces of template"
+				default: true
+			react:
+				description: Describes a behavior triggered when the tool encounters an invalid section.
+				"$ref": "#/defs/reaction"
+
+	template:
+		description: |
+			Specifies conditions on validity of an issue having that label.
+			Keys are sections titles. Values - objects determining behavior.
+			If one of sections is invalid, the whole issue is invalid.
+		properties:
+			react:
+				description: Describes a reaction on an invalid issue of this type.
+				"$ref": "#/defs/reaction"
+			messages:
+				description: Allows you to customize a message per issue template.
+				"$ref": "#/defs/messagesTemplates"
+			essentialLabels:
+				"$ref": "#/defs/essentialLabels"
+			cbxSections:
+				type: object
+				additionalProperties:
+					"$ref": "#/defs/cbxSection"
+			restSections:
+				type: object
+				additionalProperties:
+					"$ref": "#/defs/restSection"
+
+properties:
+	react:
+		description: Describes a reaction on an invalid issue of this label.
+		"$ref": "#/defs/reaction"
+		default: {"react": {"label": True}}
+	messages:
+		"$ref": "#/defs/messagesTemplates"
+	essentialLabels:
+		"$ref": "#/defs/essentialLabels"
+	templates:
+		description: keys are issue labels (the same that are specified in templates), values are configs to validate an issue. This field is harvsted from issues templates.
+		type: object
+		additionalProperties:
+			"$ref": "#/defs/template"
