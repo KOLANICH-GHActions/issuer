@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=61.2.0", "wheel",
+#"setuptools_scm[toml]>=3.4.3"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "IssuerGHAction"
+authors = [{name = "KOLANICH"}]
+description = "A GitHub Action automating self-management of issues by their creators."
+readme = "ReadMe.md"
+keywords = ["open source", "ideas"]
+license = {text = "Unlicense"}
+classifiers = [
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Development Status :: 4 - Beta",
+	"Environment :: Other Environment",
+	"Intended Audience :: Developers",
+	"License :: Public Domain",
+	"Operating System :: OS Independent",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+	"Topic :: Text Processing",
+]
+urls = {Homepage = "https://gitlab.com/KOLANICH/issuer"}
+requires-python = ">=3.4"
+dependencies = [
+	"miniGHAPI", # @ https://github.com/KOLANICH-libs/miniGHAPI.py
+	"commonmark", # @ git+https://github.com/readthedocs/commonmark.py
+	"recommonmark", # @ git+https://github.com/readthedocs/recommonmark.git
+	"docutils",
+	"python-dateutil", # @ git+https://github.com/dateutil/dateutil.git
+	"ruamel.yaml", # @ hg+https://hg.code.sf.net/p/ruamel-yaml/code/
+]
+#dynamic = ["version"]
+version = "0.0.1"
+
+#[tool.setuptools_scm]
+# tool.setuptools_scm doesn't work in GH actions because it does not clone
+
+[project.optional-dependencies]
+warnings = [
+	"python-crontab", # @ https://gitlab.com/doctormo/python-crontab.git
+]
+
+[project.scripts]
+IssuerGHAction = "IssuerGHAction.__main__:main"
+
+[tool.setuptools]
+zip-safe = true
+include-package-data = true
+packages = ["IssuerGHAction"]

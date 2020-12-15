@@ -1,0 +1,4 @@
+https://github.com/pypa/setuptools_scm.git
+https://github.com/dateutil/dateutil.git
+https://github.com/readthedocs/commonmark.py.git
+https://github.com/readthedocs/recommonmark.git

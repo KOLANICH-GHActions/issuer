@@ -1,0 +1,32 @@
+name: Issuer
+description: |
+  Lints issues to match the template. Allows users to assign own tags.
+author: KOLANICH
+inputs: 
+  github_token:
+    description: "The GITHUB_TOKEN secret"
+  config:
+    description: "The path for the label configurations"
+    default: ".github/issuer.yml"
+
+runs:
+  using: "composite"
+  steps:
+    - name: bootstrap_python_packaging
+      uses: KOLANICH-GHActions/bootstrap-python-packaging@master
+
+    - run: |
+        set -e;
+        cd ${{ github.action_path }};
+        . ./setup.sh;
+      shell: bash
+
+   # Running IssuerGHAction
+    - run: |
+        set -e;
+        IssuerGHAction
+      shell: bash
+
+branding:
+  icon: check-square
+  color: green
